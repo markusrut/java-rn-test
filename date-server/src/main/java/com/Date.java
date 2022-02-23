@@ -1,5 +1,8 @@
 package com;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,17 +15,15 @@ public class Date {
   private EntityManager em;
 
   @GetMapping("/date")
-  public String CurrentDate() {
-    // return current date and time
-    return java.time.LocalDateTime.now().toString();
+  public DateDto GetDate() {
+    final var dbDateString = em.createNativeQuery("SELECT NOW()").getSingleResult().toString();
+    final var dbDate = LocalDateTime.parse(dbDateString, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.S"));
+
+    return new DateDto(LocalDateTime.now(), dbDate);
   }
 
-  @GetMapping("/date-db")
-  public String CurrentDbDate() {
-    try {
-      return em.createNativeQuery("SELECT NOW()").getSingleResult().toString();
-    } catch (Exception e) {
-      return "Error: " + e.getMessage();
-    }
+  @GetMapping("/date-server")
+  public LocalDateTime GetDateServer() {
+    return LocalDateTime.now();
   }
 }
